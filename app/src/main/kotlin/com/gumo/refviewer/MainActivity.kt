@@ -23,6 +23,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var adapter: FileAdapter
     private lateinit var tvCount: TextView
     private var fileObserver: FileObserver? = null
+    private val httpServer = RefHttpServer(port = 8077)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,6 +53,7 @@ class MainActivity : AppCompatActivity() {
         }
         loadFiles()
         startWatching()
+        httpServer.start()
     }
 
     private fun loadFiles() {
@@ -118,6 +120,7 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         fileObserver?.stopWatching()
+        httpServer.stop()
     }
 
     companion object { private const val REQ_PERMISSION = 100 }
