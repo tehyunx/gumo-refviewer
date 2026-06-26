@@ -13,18 +13,22 @@ data class FileItem(
             val tags = mutableListOf<String>()
             try {
                 file.bufferedReader().use { reader ->
-                    val firstLine = reader.readLine()?.trim()
+                    val firstLine = reader.readLine()?.trimStart('﻿')?.trim()
                     if (firstLine == "---") {
                         var line = reader.readLine()
                         while (line != null && line.trim() != "---") {
                             when {
-                                line.startsWith("title:") ->
-                                    title = line.removePrefix("title:").trim().removeSurrounding("\"").removeSurrounding("'")
+                                line.startsWith("title:") -> {
+                                    val v = line.removePrefix("title:").trim().removeSurrounding("\"").removeSurrounding("'")
+                                    if (v.isNotEmpty()) title = v
+                                }
                                 line.startsWith("tags:") -> {
                                     val tagStr = line.removePrefix("tags:").trim()
                                     if (tagStr.startsWith("[")) {
                                         tagStr.removeSurrounding("[", "]").split(",")
-                                            .forEach { tags.add(it.trim().removeSurrounding("\"").removeSurrounding("'")) }
+                                            .map { it.trim().removeSurrounding("\"").removeSurrounding("'") }
+                                            .filter { it.isNotEmpty() }
+                                            .forEach { tags.add(it) }
                                     }
                                 }
                             }
